@@ -1,0 +1,51 @@
+name: Probar control táctil
+# Se corre a mano (Actions → Probar control táctil → Run workflow).
+# Abre una partida dentro de la app en un emulador, simulando un celular que además reporta un puntero fino
+# (como algunos Samsung y Xiaomi), y arrastra el dedo para comprobar que el personaje se mueve.
+on:
+  workflow_dispatch:
+
+jobs:
+  toque:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Compilar una versión de prueba
+        # "debuggable" solo en esta copia, para poder leer el estado del juego desde DevTools.
+        # Número de versión alto para que no ofrezca actualizarse en medio de la prueba.
+        env:
+          APK: prueba.apk
+          VC: 999
+          KS_B64: ${{ secrets.KS_B64 }}
+          KS_PASS: ${{ secrets.KS_PASS }}
+        run: |
+          sed -i 's/--auto-add-overlay/--auto-add-overlay --debug-mode/' android/build.sh
+          bash android/build.sh
+      - name: Activar KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Emulador
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
+          script: bash .github/toque.sh io.github.elmpl.nochedesalamanca out/prueba.apk
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: capturas-toque
+          path: shots/
