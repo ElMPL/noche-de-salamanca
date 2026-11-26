@@ -1,0 +1,12 @@
+{
+  "name": "Noche de Salamanca",
+  "description": "Folklore argentino en 3D: 9 regiones, 36 mapas, 12 jefes y 204 misiones. Aguantá las oleadas solo, con bots o hasta 4 online.",
+  "author": "MPLayer",
+  "mode": "multi",
+  "minPlayers": 1,
+  "maxPlayers": 4,
+  "emoji": "🔥",
+  "color": "#c8202c",
+  "thumbnail": "thumb.jpg",
+  "controls": "WASD mover · Espacio esquivar · Q destreza · E sapucay · Esc menú"
+}

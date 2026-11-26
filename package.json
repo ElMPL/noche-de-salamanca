@@ -1,0 +1,13 @@
+{
+  "name": "noche-de-salamanca",
+  "private": true,
+  "description": "Noche de Salamanca: arena cooperativa en 3D de folklore argentino",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.21.5",
+    "three": "0.160.0"
+  },
+  "type": "commonjs"
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fogón: brillo, llama y dos leños cruzados -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FFF2B33D" android:fillAlpha="0.16" android:pathData="M26,62a28,28 0 1,0 56,0a28,28 0 1,0 -56,0z" />
+    <path android:fillColor="#FF6A3920" android:pathData="M73.5,75.2L75.4,80.3L37.2,90.6L35.3,85.5Z" />
+    <path android:fillColor="#FF7E4628" android:pathData="M34.5,75.2L32.6,80.3L70.8,90.6L72.7,85.5Z" />
+    <path android:fillColor="#FFC68B57" android:pathData="M31.2,77.8a2.6,2.6 0 1,0 5.2,0a2.6,2.6 0 1,0 -5.2,0z" />
+    <path android:fillColor="#FFB07446" android:pathData="M71.6,77.8a2.6,2.6 0 1,0 5.2,0a2.6,2.6 0 1,0 -5.2,0z" />
+    <path android:fillColor="#FFE24A26" android:pathData="M54,25C57,35 68,42 69,56C70,68 63,77 54,77C45,77 38,68 39,57C40,49 45,45 46,38C50,43 51,47 51,51C55,45 53,34 54,25Z" />
+    <path android:fillColor="#FFF2B33D" android:pathData="M55,43C58,51 64,55 64,63C64,70 60,75 54,75C48,75 44,70 44,64C44,59 47,56 49,52C51,56 52,58 53,59C56,55 55,49 55,43Z" />
+    <path android:fillColor="#FFFFF1C4" android:pathData="M54,57C56,61 59,64 59,68C59,71 57,74 54,74C51,74 49,71 49,68C49,65 52,62 54,57Z" />
+</vector>

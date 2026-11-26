@@ -1,0 +1,6 @@
+node_modules/
+arcade/
+android/build/
+out/
+*.p12
+*.jks
