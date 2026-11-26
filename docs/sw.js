@@ -1,6 +1,6 @@
 // Guarda el juego en el celular para jugar sin internet y lo actualiza solo.
-// La versión (30c1aab180) cambia en cada compilación: eso hace que el navegador baje la nueva.
-const V = '30c1aab180', C = 'nds-' + V, FILES = ['./game.js?v=' + V, './app.js?v=' + V];
+// La versión (ccbfd087fb) cambia en cada compilación: eso hace que el navegador baje la nueva.
+const V = 'ccbfd087fb', C = 'nds-' + V, FILES = ['./game.js?v=' + V, './app.js?v=' + V];
 const FONTS = /(^|\.)fonts\.(googleapis|gstatic)\.com$/;
 
 self.addEventListener('install', e => e.waitUntil((async () => {
