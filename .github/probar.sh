@@ -13,11 +13,15 @@ tap() {
   set -- $b; adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 )); echo "Toqué «$l»"
 }
 ver() { adb shell dumpsys package "$PKG" | grep -m1 -o 'versionCode=[0-9]*'; }
-gotit() { if grep -q 'text="Got it"' "shots/$1.xml"; then tap 'Got it' "$1"; sleep 2; shot "$1"; fi; }
+# cierra carteles del sistema (pantalla completa, "no responde") que tapan la app
+gotit() { for k in 1 2 3; do
+  if grep -q 'text="Got it"' "shots/$1.xml"; then tap 'Got it' "$1"
+  elif grep -q "responding" "shots/$1.xml"; then tap 'Wait' "$1"
+  else return 0; fi; sleep 3; shot "$1" >/dev/null; done; }
 
 echo "--- Esperando la red del emulador"
 for i in $(seq 1 40); do adb shell dumpsys connectivity | grep -q 'VALIDATED' && { echo "Red lista"; break; }; sleep 3; done
-sleep 5
+sleep 25
 adb logcat -c
 
 echo "--- Versión vieja"
@@ -32,6 +36,7 @@ echo "--- Actualización"
 for i in $(seq 1 10); do
   shot paso-$i >/dev/null
   if grep -q 'text="Got it"' shots/paso-$i.xml; then tap 'Got it' paso-$i
+  elif grep -q "responding" shots/paso-$i.xml; then tap 'Wait' paso-$i
   elif grep -q 'text="Actualizar"' shots/paso-$i.xml; then tap 'Actualizar' paso-$i
   elif grep -q -i -E 'text="(Update|Install)"' shots/paso-$i.xml; then tap 'Update|Install' paso-$i
   elif [ "$(ver)" != "versionCode=1" ]; then break; fi
