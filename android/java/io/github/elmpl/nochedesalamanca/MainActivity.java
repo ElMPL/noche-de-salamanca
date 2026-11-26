@@ -409,7 +409,6 @@ public class MainActivity extends Activity {
         final SharedPreferences sp = getSharedPreferences("app", MODE_PRIVATE);
         final long now = System.currentTimeMillis();
         if (!force && now - sp.getLong("chk", 0) < 30 * 60 * 1000L) return;
-        sp.edit().putLong("chk", now).apply();
         final int mine = version();
         new Thread(() -> {
             try {
@@ -419,6 +418,7 @@ public class MainActivity extends Activity {
                 c.setRequestProperty("Accept", "application/vnd.github+json");
                 c.setRequestProperty("User-Agent", Config.UA);
                 if (c.getResponseCode() != 200) return;
+                sp.edit().putLong("chk", now).apply();
                 JSONObject j = new JSONObject(readAll(c.getInputStream()));
                 String digits = j.optString("tag_name", "").replaceAll("[^0-9]", "");
                 if (digits.isEmpty()) return;
