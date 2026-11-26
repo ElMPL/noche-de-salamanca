@@ -24,7 +24,7 @@ mkdir -p "$B/gen" "$B/classes" "$OUT"
 "$BT/aapt2" link -I "$PLAT" --manifest AndroidManifest.xml -o "$B/base.apk" "$B/res.zip" --java "$B/gen" \
   --min-sdk-version 26 --target-sdk-version 34 --version-code "$VC" --version-name "1.$VC" --auto-add-overlay
 
-javac -encoding UTF-8 -source 8 -target 8 -nowarn -Xlint:-options -bootclasspath "$PLAT" -classpath "$PLAT" \
+javac -encoding UTF-8 --release 8 -nowarn -Xlint:-options -classpath "$PLAT" \
   -d "$B/classes" $(find java "$B/gen" -name '*.java')
 "$BT/d8" --release --min-api 26 --lib "$PLAT" --output "$B" $(find "$B/classes" -name '*.class')
 
