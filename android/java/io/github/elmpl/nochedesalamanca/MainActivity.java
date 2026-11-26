@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowInsets;
@@ -405,38 +406,61 @@ public class MainActivity extends Activity {
         return o.toString("UTF-8");
     }
 
+    /** Busca la última versión publicada: primero con el enlace público "latest" de GitHub y, si falla, con su API. */
     private void checkUpdate(boolean force) {
         final SharedPreferences sp = getSharedPreferences("app", MODE_PRIVATE);
         final long now = System.currentTimeMillis();
         if (!force && now - sp.getLong("chk", 0) < 30 * 60 * 1000L) return;
         final int mine = version();
         new Thread(() -> {
-            try {
-                HttpURLConnection c = (HttpURLConnection) new URL("https://api.github.com/repos/" + Config.REPO + "/releases/latest").openConnection();
-                c.setConnectTimeout(10000);
-                c.setReadTimeout(10000);
-                c.setRequestProperty("Accept", "application/vnd.github+json");
-                c.setRequestProperty("User-Agent", Config.UA);
-                if (c.getResponseCode() != 200) return;
-                sp.edit().putLong("chk", now).apply();
-                JSONObject j = new JSONObject(readAll(c.getInputStream()));
-                String digits = j.optString("tag_name", "").replaceAll("[^0-9]", "");
-                if (digits.isEmpty()) return;
-                final int v = Integer.parseInt(digits);
-                if (v <= mine) return;
-                if (sp.getInt("skipV", 0) == v && now - sp.getLong("skipT", 0) < 12 * 3600 * 1000L) return;
-                String url = null;
-                JSONArray a = j.optJSONArray("assets");
-                if (a != null) for (int i = 0; i < a.length(); i++) {
-                    JSONObject o = a.getJSONObject(i);
-                    if (o.optString("name").endsWith(".apk")) { url = o.optString("browser_download_url"); break; }
-                }
-                if (url == null) return;
-                final String fu = url;
-                ui.post(() -> ask(v, fu));
-            } catch (Exception ignored) {
-            }
+            String[] found = null;
+            try { found = latestByLink(); } catch (Exception e) { Log.i(Config.UA, "enlace latest: " + e); }
+            if (found == null) try { found = latestByApi(); } catch (Exception e) { Log.i(Config.UA, "API: " + e); }
+            if (found == null) { Log.i(Config.UA, "No se pudo saber la última versión"); return; }
+            sp.edit().putLong("chk", now).apply();
+            final int v = Integer.parseInt(found[0]);
+            final String url = found[1];
+            Log.i(Config.UA, "Versión instalada " + mine + ", publicada " + v);
+            if (v <= mine) return;
+            if (sp.getInt("skipV", 0) == v && now - sp.getLong("skipT", 0) < 12 * 3600 * 1000L) return;
+            ui.post(() -> ask(v, url));
         }).start();
+    }
+
+    /** github.com/…/releases/latest redirige a …/releases/tag/vN: de ahí sale el número y el enlace del APK. */
+    private String[] latestByLink() throws IOException {
+        HttpURLConnection c = (HttpURLConnection) new URL("https://github.com/" + Config.REPO + "/releases/latest").openConnection();
+        c.setInstanceFollowRedirects(false);
+        c.setRequestMethod("HEAD");
+        c.setConnectTimeout(10000);
+        c.setReadTimeout(10000);
+        c.setRequestProperty("User-Agent", Config.UA);
+        int code = c.getResponseCode();
+        String loc = c.getHeaderField("Location");
+        c.disconnect();
+        if (code / 100 != 3 || loc == null || !loc.contains("/releases/tag/")) return null;
+        String tag = loc.substring(loc.lastIndexOf('/') + 1);
+        String digits = tag.replaceAll("[^0-9]", "");
+        if (digits.isEmpty()) return null;
+        return new String[]{digits, "https://github.com/" + Config.REPO + "/releases/download/" + tag + "/" + Config.APK};
+    }
+
+    private String[] latestByApi() throws Exception {
+        HttpURLConnection c = (HttpURLConnection) new URL("https://api.github.com/repos/" + Config.REPO + "/releases/latest").openConnection();
+        c.setConnectTimeout(10000);
+        c.setReadTimeout(10000);
+        c.setRequestProperty("Accept", "application/vnd.github+json");
+        c.setRequestProperty("User-Agent", Config.UA);
+        if (c.getResponseCode() != 200) { Log.i(Config.UA, "API respondió " + c.getResponseCode()); return null; }
+        JSONObject j = new JSONObject(readAll(c.getInputStream()));
+        String digits = j.optString("tag_name", "").replaceAll("[^0-9]", "");
+        if (digits.isEmpty()) return null;
+        JSONArray a = j.optJSONArray("assets");
+        if (a != null) for (int i = 0; i < a.length(); i++) {
+            JSONObject o = a.getJSONObject(i);
+            if (o.optString("name").endsWith(".apk")) return new String[]{digits, o.optString("browser_download_url")};
+        }
+        return null;
     }
 
     private AlertDialog.Builder dialog() {

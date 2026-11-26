@@ -9,6 +9,8 @@ final class Config {
     static final String PATH = "/noche-de-salamanca";
     /** Repo donde se publican las versiones nuevas del APK. */
     static final String REPO = "ElMPL/noche-de-salamanca";
+    /** Nombre del APK en cada versión publicada. */
+    static final String APK = "noche-de-salamanca.apk";
     static final String UA = "NocheDeSalamancaApp";
     static final String NAME = "Noche de Salamanca";
     static final int BG = 0xFF1A0F24;

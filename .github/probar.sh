@@ -62,4 +62,6 @@ adb logcat -d > shots/logcat.txt
 echo "--- Errores de la app"
 grep -E "FATAL EXCEPTION|AndroidRuntime: |Process: $PKG" shots/logcat.txt | head -20
 grep -E "chromium.*(ERR_|Uncaught)" shots/logcat.txt | head -10
+echo "--- Registro de la app"
+grep -E "NocheDeSalamancaApp|ClaudeArcadeApp" shots/logcat.txt | head -10
 echo "fin"
