@@ -22,6 +22,11 @@ gotit() { for k in 1 2 3; do
 echo "--- Esperando la red del emulador"
 for i in $(seq 1 40); do adb shell dumpsys connectivity | grep -q 'VALIDATED' && { echo "Red lista"; break; }; sleep 3; done
 sleep 25
+# sin el aviso de pantalla completa ni carteles del sistema
+adb shell settings put secure immersive_mode_confirmations confirmed
+adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS >/dev/null 2>&1
+adb shell input keyevent KEYCODE_HOME
+sleep 5
 adb logcat -c
 
 echo "--- Versión vieja"
@@ -36,7 +41,7 @@ echo "--- Actualización"
 for i in $(seq 1 10); do
   shot paso-$i >/dev/null
   if grep -q 'text="Got it"' shots/paso-$i.xml; then tap 'Got it' paso-$i
-  elif grep -q "responding" shots/paso-$i.xml; then tap 'Wait' paso-$i
+  elif grep -q "responding" shots/paso-$i.xml; then adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS >/dev/null 2>&1; echo "Cerré un cartel del sistema"
   elif grep -q 'text="Actualizar"' shots/paso-$i.xml; then tap 'Actualizar' paso-$i
   elif grep -q -i -E 'text="(Update|Install)"' shots/paso-$i.xml; then tap 'Update|Install' paso-$i
   elif [ "$(ver)" != "versionCode=1" ]; then break; fi
